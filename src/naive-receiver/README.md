@@ -23,24 +23,12 @@ What are meta-transactions?
         + How is the sign/verification process?
             + How public keys are generated?
                 + What are the Mnemonic Phrases?
-
-```
--------------------[Off-chain]--------------------
-User: create and sing the meta-transaction (m-txn)
-  |
-  | ( send sm-txn )
-  v
-Relayer: packet sm-txn into a normal transaction
-  |
--------------------[On-chain]---------------------
-  | ( send {from, to, value, ..., (sm-txn)} )
-  v
-Forwarder: unpack and verify the sm-txn signature
-  |
-  | ( execute actions in m-txn )
-  v
-Blockchain: update state
-```
-
 2. Inherits
+    EIP-712
+    EIP-191
+        Cyfrin: Advance Foundry - section 5 (relevant info only)
 3. Code
+
+
+-------------------------------------
+
