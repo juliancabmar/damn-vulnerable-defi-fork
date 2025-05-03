@@ -11,8 +11,8 @@ All funds are at risk! Rescue all WETH from the user and the pool, and deposit i
     1. Docs
     2. Inherits
     3. Code
+    Begin of the 5 hours
 
-Processes schema:
 
 # Notes
 
@@ -29,6 +29,19 @@ What are meta-transactions?
         Cyfrin: Advance Foundry - section 5 (relevant info only)
 3. Code
 
+Checked | Code | Files
+    +    | 12   | [](Multicall.sol)
+    +    | 29   | [](FlashLoanReceiver.sol)
+    -    | 68   | [](NaiveReceiverPool.sol)
+    -    | 77   | [](BasicForwarder.sol)
+
 
 -------------------------------------
 
+Strategy:
+WETH_IN_POOL = 1000e18;
+WETH_IN_RECEIVER = 10e18;
+FIXED_FEE = 1e18
+
+player
+    FlashLoanReceiver::onFlashLoan(address(pool), address(weth), WETH_IN_POOL, 1e18, bytes calldata)

