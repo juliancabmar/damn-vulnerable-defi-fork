@@ -3,9 +3,9 @@
 pragma solidity =0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-import {NaiveReceiverPool, Multicall, WETH} from "../../src/naive-receiver/mocks/NaiveReceiverPool.sol";
-import {FlashLoanReceiver} from "../../src/naive-receiver/mocks/FlashLoanReceiver.sol";
-import {BasicForwarder} from "../../src/naive-receiver/mocks/BasicForwarder.sol";
+import {NaiveReceiverPool, Multicall, WETH} from "../../src/naive-receiver/NaiveReceiverPool.sol";
+import {FlashLoanReceiver} from "../../src/naive-receiver/FlashLoanReceiver.sol";
+import {BasicForwarder} from "../../src/naive-receiver/BasicForwarder.sol";
 
 contract NaiveReceiverChallenge is Test {
     address deployer = makeAddr("deployer");

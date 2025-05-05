@@ -43,6 +43,7 @@ WETH_IN_POOL = 1000e18;
 WETH_IN_RECEIVER = 10e18;
 FIXED_FEE = 1e18
 
-player
 
-transactionA(trnsac)
+[withdraw(args)][depoyerAddress]
+
+forwarder.execute(\x19\x01[domainhash][request[args,.....,[pool.multicall([withdraw(args)][depoyerAddress])]], expire]], signature)
