@@ -44,4 +44,5 @@ WETH_IN_RECEIVER = 10e18;
 FIXED_FEE = 1e18
 
 player
-    FlashLoanReceiver::onFlashLoan(address(pool), address(weth), WETH_IN_POOL, 1e18, bytes calldata)
+
+transactionA(trnsac)

