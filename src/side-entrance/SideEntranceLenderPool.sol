@@ -2,6 +2,7 @@
 // Damn Vulnerable DeFi v4 (https://damnvulnerabledefi.xyz)
 pragma solidity =0.8.25;
 
+import {console} from "forge-std/Test.sol";
 import {SafeTransferLib} from "solady/utils/SafeTransferLib.sol";
 
 interface IFlashLoanEtherReceiver {
@@ -25,7 +26,6 @@ contract SideEntranceLenderPool {
 
     function withdraw() external {
         uint256 amount = balances[msg.sender];
-
         delete balances[msg.sender];
         emit Withdraw(msg.sender, amount);
 
